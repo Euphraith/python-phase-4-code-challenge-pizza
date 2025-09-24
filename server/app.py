@@ -25,7 +25,7 @@ def index():
     return "<h1>Code challenge</h1>"
 
 class Restaurants(Resource):
-    def get_restaurant(self):
+    def get(self):
         restaurants = [r.to_dict() for r in Restaurant.query.all()] ## getting all rows 
         return make_response(restaurants, 200)
 
@@ -34,25 +34,25 @@ class RestaurantID(Resource):
     def get(self, id):
         restaurant = Restaurant.query.get(id)
         if not restaurant:
-            return make_response({"error": "Restaurant you are looking for is not found"}, 404)
+            return make_response({"error": "Restaurant not found"}, 404)
 
         data = restaurant.to_dict()
         data["restaurant_pizzas"] = [
             {
-                "id": RestaurantPizza.id,
-                "price": RestaurantPizza.price,
-                "pizza_id": RestaurantPizza.pizza_id,
-                "restaurant_id": RestaurantPizza.restaurant_id,
-                "pizza": RestaurantPizza.pizza.to_dict()
+                "id": rp.id,
+                "price": rp.price,
+                "pizza_id": rp.pizza_id,
+                "restaurant_id": rp.restaurant_id,
+                "pizza": rp.pizza.to_dict()
             }
-            for RestaurantPizza in restaurant.restaurant_pizzas
+            for rp in restaurant.restaurant_pizzas
         ]
         return make_response(data, 200)
 
     def delete(self, id):
         restaurant = Restaurant.query.get(id) ## get the restaurant by id 
         if not restaurant:
-            return make_response({"error": "Restaurant you are looking for is not found"}, 404)
+            return make_response({"error": "Restaurant not found"}, 404)
 
         db.session.delete(restaurant)
         db.session.commit()
